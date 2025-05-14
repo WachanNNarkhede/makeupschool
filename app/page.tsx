@@ -2,6 +2,9 @@
 import Head from 'next/head';
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+// @ts-expect-error TS2307
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import Herohome from '../components/herohome';
 import Wsus from '@/components/wsus';
 import Makeupservice from '@/components/makeupservice';
@@ -13,15 +16,20 @@ export default function Home() {
   const followRef = useRef<HTMLDivElement>(null);
   const hideElementsRef = useRef<HTMLDivElement[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
-  const titleLinesRef = useRef<HTMLParagraphElement[]>([]);
+
+  // Initialize AOS after loading completes
+  useEffect(() => {
+    if (loadingComplete) {
+      AOS.init({
+        duration: 800,
+       
+        easing: 'ease-in-out-quad'
+      });
+    }
+  }, [loadingComplete]);
 
   const addToHideRefs = (el: HTMLDivElement | null) => {
     if (el) hideElementsRef.current.push(el);
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const addToTitleLinesRefs = (el: HTMLParagraphElement | null) => {
-    if (el) titleLinesRef.current.push(el);
   };
 
   useEffect(() => {
@@ -31,15 +39,16 @@ export default function Home() {
     link.rel = 'stylesheet';
     document.head.appendChild(link);
 
+    // Extended loading duration (4 seconds total)
     const countInterval = setInterval(() => {
       setCounter((prevCounter) => {
         if (prevCounter >= 100) {
           clearInterval(countInterval);
           return 100;
         }
-        return prevCounter + 1;
+        return prevCounter + 1; // Adjusted for 4 second duration
       });
-    }, 25);
+    }, 40); // Changed from 25ms to 40ms for slower count
 
     return () => {
       clearInterval(countInterval);
@@ -65,27 +74,27 @@ export default function Home() {
     tl.to(followRef.current, {
       width: '100%',
       ease: 'expo.inOut',
-      duration: 1.2,
-      delay: 0.7
+      duration: 2, // Extended duration
+      delay: 1 // Added delay
     })
     .to(hideElementsRef.current, {
       opacity: 0,
-      duration: 0.3
+      duration: 0.5
     })
     .to(hideElementsRef.current, {
       display: 'none',
-      duration: 0.3
+      duration: 0
     })
     .to(followRef.current, {
       height: '100%',
       ease: 'expo.inOut',
-      duration: 0.7,
+      duration: 1.5,
       delay: 0.5
     })
     .to(contentRef.current, {
       width: '100%',
       ease: 'expo.inOut',
-      duration: 0.7
+      duration: 1.5
     });
   };
 
@@ -94,7 +103,6 @@ export default function Home() {
       <Head>
         <title>KRUNAL&apos;S ACADEMY | The School Of Hair, Skin, Make up & Nail</title>
         <meta name="description" content="Empowering Beauty Professionals" />
-        {/* Preconnect for fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
@@ -116,7 +124,7 @@ export default function Home() {
             className="hide text-white font-medium transform -translate-y-4"
             style={{
               fontFamily: "'Orbitron', sans-serif",
-              fontSize: '8rem', // Increased size to 8rem (128px)
+              fontSize: '8rem',
               fontWeight: 700
             }}
           >
@@ -135,20 +143,32 @@ export default function Home() {
           fontFamily: 'sans-serif'
         }}
       >
-        {/* Hero Section */}
-        <Herohome/>
+        {/* Hero Section - Added proper AOS attributes */}
+        <div data-aos="fade-up" data-aos-delay="200">
+          <Herohome/>
+        </div>
 
         {/* Why Choose Us Section */}
-        <Wsus/>
+        <div data-aos="fade-up" data-aos-delay="300">
+          <Wsus/>
+        </div>
 
         {/* Makeup Services Section */}
-        <Makeupservice/>
+        <div data-aos="fade-up" data-aos-delay="400">
+          <Makeupservice/>
+        </div>
 
         {/* Testimonials Section */}
-        <Testimonials/>
+        <div data-aos="fade-up" data-aos-delay="500">
+          <Testimonials/>
+        </div>
 
         {/* Highlights Section */}
-        <section className="py-16 px-8 bg-[#1a1a1a]">
+        <section 
+          className="py-16 px-8 bg-[#1a1a1a]"
+          data-aos="fade-up" 
+          data-aos-delay="600"
+        >
           <h2 className="text-4xl text-center mb-12 text-[#c5fb45]">
             Academy Highlights
           </h2>
@@ -159,7 +179,11 @@ export default function Home() {
               { number: '10+', label: 'Years Experience' },
               { number: '95%', label: 'Placement Rate' }
             ].map((highlight, index) => (
-              <div key={index}>
+              <div 
+                key={index}
+                data-aos="zoom-in"
+                data-aos-delay={700 + (index * 100)}
+              >
                 <p className="text-4xl font-bold text-[#c5fb45] mb-2">
                   {highlight.number}
                 </p>
